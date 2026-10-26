@@ -1,0 +1,31 @@
+﻿Test ID,Test Name,Test Set,Application,Test Type,Assigned To,Planned Date,Last Execution Date,Run ID,Execution Date Time,Status,ALM Status,Executed By,Duration Seconds,Environment,Defects,ALM Test ID
+TI-100,Test case 1,Release 4.2\Sprint 9\Checkout,Retail Web,Manual,owner1,2026-10-30,2026-10-24T08:00:00Z,5001,2026-10-24T08:07:00Z,Blocked,Blocked,tester2,30,UAT,77,1
+TI-100,Test case 1,Release 4.2\Sprint 9\Checkout,Retail Web,Manual,owner1,2026-10-30,2026-10-24T08:00:00Z,5000,2026-10-26T08:07:00Z,Failed,Failed,tester1,30,SIT,,1
+TI-101,Test case 2,Release 4.2\Sprint 9\Checkout,Retail Web,Manual,owner2,2026-10-29,2026-10-23T09:00:00Z,5004,2026-10-23T09:14:00Z,Passed,Passed,tester0,60,SIT,,2
+TI-101,Test case 2,Release 4.2\Sprint 9\Checkout,Retail Web,Manual,owner2,2026-10-29,2026-10-23T09:00:00Z,5003,2026-10-25T09:14:00Z,In progress,Not Completed,tester3,60,UAT,,2
+TI-101,Test case 2,Release 4.2\Sprint 9\Checkout,Retail Web,Manual,owner2,2026-10-29,2026-10-23T09:00:00Z,5002,2026-10-27T08:14:00Z,Blocked,Blocked,tester2,60,SIT,,2
+TI-102,Test case 3,Release 4.2\Sprint 9\Checkout,Retail Web,Automated,owner0,2026-10-28,2026-10-26T08:00:00Z,5005,2026-10-26T08:21:00Z,In progress,Not Completed,tester3,90,SIT,,3
+TI-103,Test case 4,Release 4.2\Sprint 9\Checkout,Retail Web,Manual,owner1,2026-10-27,,,,,,,,,,4
+TI-104,Test case 5,Release 4.2\Sprint 9\Checkout,Retail Web,Manual,owner2,2026-10-26,2026-10-22T09:00:00Z,5008,2026-10-22T09:35:00Z,Failed,Failed,tester3,150,SIT,,5
+TI-104,Test case 5,Release 4.2\Sprint 9\Checkout,Retail Web,Manual,owner2,2026-10-26,2026-10-22T09:00:00Z,5007,2026-10-24T08:35:00Z,Passed,Passed,tester2,150,UAT,,5
+TI-104,Test case 5,Release 4.2\Sprint 9\Checkout,Retail Web,Manual,owner2,2026-10-26,2026-10-22T09:00:00Z,5006,2026-10-26T08:35:00Z,Not run,No Run,tester1,150,SIT,,5
+TI-105,Test case 6,Release 4.2\Sprint 9\Checkout,Retail Web,Automated,owner0,2026-10-25,2026-10-27T08:00:00Z,5009,2026-10-27T08:42:00Z,Passed,Passed,tester2,180,SIT,,6
+TI-106,Test case 7,Release 4.2\Sprint 9\Checkout,Retail Web,Manual,owner1,2026-10-24,2026-10-24T08:00:00Z,5011,2026-10-24T08:49:00Z,Blocked,Blocked,tester0,210,UAT,,7
+TI-106,Test case 7,Release 4.2\Sprint 9\Checkout,Retail Web,Manual,owner1,2026-10-24,2026-10-24T08:00:00Z,5010,2026-10-26T08:49:00Z,Failed,Failed,tester3,210,SIT,,7
+TI-107,Test case 5,Release 4.2\Payments,Retail Web,Manual,owner2,2026-10-26,2026-10-22T09:00:00Z,5014,2026-10-22T09:35:00Z,Failed,Failed,tester3,150,SIT,,5
+TI-107,Test case 5,Release 4.2\Payments,Retail Web,Manual,owner2,2026-10-26,2026-10-22T09:00:00Z,5013,2026-10-24T08:35:00Z,Passed,Passed,tester2,150,UAT,,5
+TI-107,Test case 5,Release 4.2\Payments,Retail Web,Manual,owner2,2026-10-26,2026-10-22T09:00:00Z,5012,2026-10-26T08:35:00Z,Not run,No Run,tester1,150,SIT,,5
+TI-108,Test case 6,Release 4.2\Payments,Retail Web,Automated,owner0,2026-10-25,2026-10-27T08:00:00Z,5015,2026-10-27T08:42:00Z,Passed,Passed,tester2,180,SIT,,6
+TI-109,Test case 7,Release 4.2\Payments,Retail Web,Manual,owner1,2026-10-24,2026-10-24T08:00:00Z,5017,2026-10-24T08:49:00Z,Blocked,Blocked,tester0,210,UAT,,7
+TI-109,Test case 7,Release 4.2\Payments,Retail Web,Manual,owner1,2026-10-24,2026-10-24T08:00:00Z,5016,2026-10-26T08:49:00Z,Failed,Failed,tester3,210,SIT,,7
+TI-110,Test case 8,Release 4.2\Payments,Warehouse,Manual,owner2,2026-10-23,2026-10-23T09:00:00Z,5020,2026-10-23T09:56:00Z,Passed,Passed,tester2,240,SIT,,8
+TI-110,Test case 8,Release 4.2\Payments,Warehouse,Manual,owner2,2026-10-23,2026-10-23T09:00:00Z,5019,2026-10-25T09:56:00Z,In progress,Not Completed,tester1,240,UAT,,8
+TI-110,Test case 8,Release 4.2\Payments,Warehouse,Manual,owner2,2026-10-23,2026-10-23T09:00:00Z,5018,2026-10-27T08:56:00Z,Blocked,Blocked,tester0,240,SIT,,8
+TI-111,Test case 9,Release 4.2\Payments,Warehouse,Automated,owner0,2026-10-22,,,,,,,,,,9
+TI-112,Test case 10,Release 4.2\Payments,Warehouse,Manual,owner1,2026-10-21,2026-10-25T09:00:00Z,5022,2026-10-25T09:10:00Z,Not run,No Run,tester3,300,UAT,,10
+TI-112,Test case 10,Release 4.2\Payments,Warehouse,Manual,owner1,2026-10-21,2026-10-25T09:00:00Z,5021,2026-10-27T08:10:00Z,Passed,Passed,tester2,300,SIT,,10
+TI-113,Test case 11,Release 4.2\Payments,Warehouse,Manual,owner2,2026-10-20,2026-10-22T09:00:00Z,5025,2026-10-22T09:17:00Z,Failed,Failed,tester1,330,SIT,,11
+TI-113,Test case 11,Release 4.2\Payments,Warehouse,Manual,owner2,2026-10-20,2026-10-22T09:00:00Z,5024,2026-10-24T08:17:00Z,Passed,Passed,tester0,330,UAT,,11
+TI-113,Test case 11,Release 4.2\Payments,Warehouse,Manual,owner2,2026-10-20,2026-10-22T09:00:00Z,5023,2026-10-26T08:17:00Z,Not run,No Run,tester3,330,SIT,,11
+TI-114,Test case 12,Release 4.2\Payments,Warehouse,Automated,owner0,2026-10-19,2026-10-27T08:00:00Z,5026,2026-10-27T08:24:00Z,Passed,Passed,tester0,360,SIT,,12
+TI-999,Test case 3 (deleted instance),Release 4.2\Sprint 9\Checkout,Retail Web,Automated,,,,5032,2026-10-27T23:30:00Z,Passed,Passed,tester9,5,SIT,,3

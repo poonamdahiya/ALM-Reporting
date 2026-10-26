@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALM Execution Report</title>
+<style>
+:root{--bg:#f5f6f8;--panel:#fff;--ink:#1b2130;--muted:#5c6577;--line:#e1e4ea;--accent:#2457c5;--accent-ink:#fff;--pass:#1f8a4c;--fail:#c8372d;--block:#b7791f;--prog:#2b6cb0;--notrun:#8a93a3;--unrec:#7b4fb3;--amber-bg:#fff4d6;--amber-ink:#7a5200;--chip:#eaf0fb;--hover:#f0f3f8;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10131a;--panel:#181c25;--ink:#e5e8ee;--muted:#98a1b1;--line:#2a303c;--accent:#6c9cff;--accent-ink:#0b1020;--pass:#3fb873;--fail:#ef6b60;--block:#e0a43a;--prog:#5c9ded;--notrun:#7d8696;--unrec:#a986db;--amber-bg:#3a2e10;--amber-ink:#f3d58a;--chip:#212a3b;--hover:#1f2430}}
+:root[data-theme="dark"]{--bg:#10131a;--panel:#181c25;--ink:#e5e8ee;--muted:#98a1b1;--line:#2a303c;--accent:#6c9cff;--accent-ink:#0b1020;--pass:#3fb873;--fail:#ef6b60;--block:#e0a43a;--prog:#5c9ded;--notrun:#7d8696;--unrec:#a986db;--amber-bg:#3a2e10;--amber-ink:#f3d58a;--chip:#212a3b;--hover:#1f2430}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--accent)}
+.wrap{max-width:1400px;margin:0 auto;padding:0 16px}
+header{background:var(--panel);border-bottom:1px solid var(--line)}
+.hdr{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-top:14px;padding-bottom:14px}
+.hdr h1{font-size:18px;margin:0;flex:1 1 auto}
+.hdr .meta{color:var(--muted);font-size:12px;display:block;font-weight:400;margin-top:2px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:6px 11px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.sm{padding:3px 8px;font-size:12px}
+.banner{background:var(--amber-bg);color:var(--amber-ink);padding:8px 0;font-size:13px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;margin:12px 0}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fg label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.fg input,.fg select{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:5px 7px}
+.quick{display:flex;gap:4px;flex-wrap:wrap}
+details.ms{position:relative}
+details.ms>summary{list-style:none;border:1px solid var(--line);border-radius:6px;padding:5px 9px;cursor:pointer;background:var(--panel);white-space:nowrap}
+details.ms>summary::-webkit-details-marker{display:none}
+details.ms[open]>summary{border-color:var(--accent)}
+.ms-list{position:absolute;z-index:20;top:calc(100% + 4px);left:0;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px;max-height:300px;overflow:auto;min-width:220px;box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.ms-list label{display:flex;gap:6px;padding:3px 4px;cursor:pointer;white-space:nowrap}
+.ms-list label:hover{background:var(--hover)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px;font-size:12px}
+.chip{background:var(--chip);border-radius:12px;padding:2px 4px 2px 10px;display:inline-flex;gap:4px;align-items:center}
+.chip button{border:0;background:none;cursor:pointer;padding:0 5px;font-size:14px;line-height:1}
+.count-note{color:var(--muted)}
+nav.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto;margin-top:6px}
+nav.tabs button{border:0;background:none;padding:9px 14px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;color:var(--muted)}
+nav.tabs button.on{border-bottom-color:var(--accent);color:var(--ink);font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px;margin:12px 0}
+.card{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:11px 13px;cursor:pointer}
+.card:hover{border-color:var(--accent)}
+.card .k{font-size:12px;color:var(--muted)}
+.card .v{font-size:24px;font-weight:650;font-variant-numeric:tabular-nums}
+.card .s{font-size:12px;color:var(--muted)}
+.card.pass .v{color:var(--pass)}.card.fail .v{color:var(--fail)}.card.block .v{color:var(--block)}.card.prog .v{color:var(--prog)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:12px}
+h2{font-size:15px;margin:0 0 10px}
+h3{font-size:14px;margin:14px 0 8px}
+.sec-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sec-h h2,.sec-h h3{margin:0;flex:1}
+.tbl-wrap{overflow:auto;max-width:100%}
+table.tbl{border-collapse:collapse;width:100%;font-size:13px}
+.tbl th{text-align:left;border-bottom:1px solid var(--line);padding:0;position:sticky;top:0;background:var(--panel)}
+.tbl th button{border:0;background:none;padding:6px 8px;cursor:pointer;font-weight:600;font-size:12px;color:var(--muted);white-space:nowrap;width:100%;text-align:inherit}
+.tbl td{border-bottom:1px solid var(--line);padding:5px 8px;vertical-align:top}
+.tbl tr:hover td{background:var(--hover)}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl .empty{color:var(--muted);text-align:center;padding:18px}
+.mono{font-family:var(--mono);font-size:12px}
+.tid{font-family:var(--mono);font-size:12px;border:0;background:none;color:var(--accent);cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px}
+.st{display:inline-block;border-radius:10px;padding:1px 8px;font-size:12px;font-weight:600;white-space:nowrap;color:#fff}
+.st.pass{background:var(--pass)}.st.fail{background:var(--fail)}.st.block{background:var(--block)}.st.prog{background:var(--prog)}.st.notrun{background:var(--notrun)}.st.unrec{background:var(--unrec)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:2px}
+.dot.pass{background:var(--pass)}.dot.fail{background:var(--fail)}.dot.block{background:var(--block)}.dot.prog{background:var(--prog)}.dot.notrun{background:var(--notrun)}.dot.unrec{background:var(--unrec)}
+.note{color:var(--muted);font-size:12px}
+.muted{color:var(--muted)}
+.subnav{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.subnav button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+details.day{border:1px solid var(--line);border-radius:8px;margin:8px 0;background:var(--panel)}
+details.day>summary{padding:9px 12px;cursor:pointer;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+details.day>summary b{min-width:150px}
+details.day .tbl-wrap{padding:0 6px 8px}
+.chart svg{width:100%;height:auto;max-height:280px;display:block}
+.chart .bar{cursor:pointer}
+.chart .bar:hover{opacity:.8}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+.minibar{display:flex;height:10px;border-radius:3px;overflow:hidden;width:90px;background:var(--line)}
+.minibar span{display:block;height:100%}
+.minibar .pass{background:var(--pass)}.minibar .fail{background:var(--fail)}.minibar .block{background:var(--block)}.minibar .prog{background:var(--prog)}.minibar .unrec{background:var(--unrec)}
+.dq li{margin:3px 0}
+.ok{color:var(--pass)}
+#settings{display:none}
+#settings.open{display:block}
+.drop{border:2px dashed var(--line);border-radius:8px;padding:18px;text-align:center;color:var(--muted)}
+.drop.over{border-color:var(--accent);color:var(--ink)}
+.set-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:12px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:50}
+.overlay.open{display:block}
+.drawer{position:absolute;right:0;top:0;bottom:0;width:min(860px,100%);background:var(--panel);overflow:auto;padding:18px;box-shadow:-8px 0 30px rgba(0,0,0,.2)}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;font-size:13px;margin:10px 0 14px}
+.kv dt{color:var(--muted)}.kv dd{margin:0}
+.rules dt{font-weight:600;margin-top:8px}.rules dd{margin:2px 0 0}
+.err{color:var(--fail)}
+@media (max-width:640px){.grid2{grid-template-columns:1fr}.kv{grid-template-columns:1fr}.hdr h1{font-size:16px}}
+@media print{
+ header .btns,.filters,.chips,nav.tabs,.subnav,.btn,#settings,.overlay{display:none!important}
+ body{background:#fff;color:#000}
+ .panel,.card,details.day{break-inside:avoid;border-color:#ccc}
+ details.day>*{display:block}
+ .print-only{display:block!important}
+ .tbl th{position:static}
+}
+.print-only{display:none}
+</style>
+</head>
+<body>
+<header>
+ <div id="banner" class="banner" hidden><div class="wrap" id="bannerText"></div></div>
+ <div class="wrap hdr">
+  <h1>ALM Test Execution Report<span class="meta" id="metaLine"></span></h1>
+  <div class="btns" style="display:flex;gap:6px;flex-wrap:wrap">
+   <button class="btn" id="btnSettings">Data &amp; settings</button>
+   <button class="btn" id="btnRules">Counting rules</button>
+   <button class="btn" id="btnExport">Export CSV</button>
+   <button class="btn" onclick="window.print()">Print</button>
+   <button class="btn" id="btnTheme" title="Toggle light/dark">◐</button>
+  </div>
+ </div>
+</header>
+
+<main class="wrap">
+ <section id="settings" class="panel">
+  <div class="sec-h"><h2>Data &amp; settings</h2><button class="btn sm" id="btnCloseSettings">Close</button></div>
+  <div class="drop" id="drop">
+   Drop an ALM export (<b>.csv</b>, <b>.tsv</b>) or a report data file (<b>.json</b>) here, or
+   <label class="btn sm" style="display:inline-block">choose a file<input type="file" id="file" accept=".csv,.tsv,.txt,.json" hidden></label>
+   <div class="note" style="margin-top:6px">The file is read in your browser only. Nothing is uploaded.</div>
+  </div>
+  <div id="loadMsg" class="note" style="margin-top:8px"></div>
+  <div class="set-grid">
+   <div class="fg"><label for="selTz">Report timezone</label><select id="selTz"></select></div>
+   <div class="fg"><label for="asOf">Report as of (reporting date)</label><input type="date" id="asOf"></div>
+   <div class="fg"><label for="dateOrder">Ambiguous dates like 03/04/2026</label><select id="dateOrder"><option value="MDY">Month/Day/Year</option><option value="DMY">Day/Month/Year</option></select></div>
+   <div class="fg"><label><input type="checkbox" id="passBlocked"> Count Blocked in pass-rate denominator</label></div>
+  </div>
+  <p style="margin:12px 0 0"><button class="btn sm" id="btnReset">Reload built-in data</button></p>
+ </section>
+
+ <section class="panel" style="padding-bottom:10px">
+  <div class="filters">
+   <div class="fg"><label for="q">Search</label><input id="q" type="search" placeholder="Test ID, name, run ID, defect" style="min-width:220px"></div>
+   <div class="fg"><label for="fromDate">From</label><div style="display:flex;gap:4px"><input type="date" id="fromDate"><input type="time" id="fromTime" title="Optional start time"></div></div>
+   <div class="fg"><label for="toDate">To</label><div style="display:flex;gap:4px"><input type="date" id="toDate"><input type="time" id="toTime" title="Optional end time"></div></div>
+   <div class="fg"><label>&nbsp;</label><button class="btn primary" id="btnApply">Apply period</button></div>
+   <div class="fg"><label>Quick periods</label><div class="quick">
+    <button class="btn sm" data-quick="today">Today</button><button class="btn sm" data-quick="yesterday">Yesterday</button>
+    <button class="btn sm" data-quick="7">7 days</button><button class="btn sm" data-quick="14">14 days</button><button class="btn sm" data-quick="30">30 days</button>
+    <button class="btn sm" data-quick="mtd">Month to date</button><button class="btn sm" data-quick="all">All data</button></div></div>
+  </div>
+  <div class="filters" id="msFilters" style="margin-top:10px"></div>
+  <div class="chips" id="chips"></div>
+ </section>
+
+ <nav class="tabs" id="tabs">
+  <button data-tab="overview">Overview</button>
+  <button data-tab="executions">Daily executions</button>
+  <button data-tab="today">Today</button>
+  <button data-tab="testers">By tester</button>
+  <button data-tab="notexec">Not executed</button>
+  <button data-tab="history">Test history</button>
+ </nav>
+ <div id="view"></div>
+ <p class="note" style="margin:24px 0">Times shown in <span id="tzNote"></span>. Generated in your browser from the loaded data; nothing is estimated.</p>
+</main>
+
+<div class="overlay" id="overlay"><div class="drawer" id="drawer"></div></div>
+
+<script>
+(function(){
+'use strict';
+/* The generator script replaces the next token with the ALM data (JSON). Leave it as-is. */
+const EMBED = /*__ALM_DATA__*/null;
+
+const NS='(not specified)';
+const STATUSES=['Passed','Failed','Blocked','In progress','Unrecognized','Not run'];
+const RUN_STATUSES=STATUSES.filter(s=>s!=='Not run');
+const SCLASS={Passed:'pass',Failed:'fail',Blocked:'block','In progress':'prog','Not run':'notrun',Unrecognized:'unrec'};
+const STATUS_MAP={Passed:['pass','passed','success','ok'],Failed:['fail','failed','failure','error','broken'],Blocked:['blocked','onhold'],'In progress':['inprogress','running','started','incomplete','notcompleted'],'Not run':['notrun','norun','unexecuted','notexecuted','pending','planned','skipped','na']};
+const SMAP=(()=>{const m={};for(const [k,a] of Object.entries(STATUS_MAP))for(const v of a)m[v]=k;for(const k of STATUSES)m[k.toLowerCase().replace(/[^a-z0-9]/g,'')]=k;return m})();
+const normStatus=s=>SMAP[String(s??'').toLowerCase().replace(/[^a-z0-9]/g,'')]||'Unrecognized';
+
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store={get(k){try{const v=localStorage.getItem('almrep.'+k);return v==null?null:JSON.parse(v)}catch(e){return null}},set(k,v){try{localStorage.setItem('almrep.'+k,JSON.stringify(v))}catch(e){}}};
+const pad=n=>String(n).padStart(2,'0');
+
+const S={
+ tz: store.get('tz') || (EMBED&&EMBED.meta&&EMBED.meta.viewerTimezone) || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+ dateOrder: store.get('dateOrder')||'MDY', passBlocked: !!store.get('passBlocked'),
+ asOf:null, fromKey:null, toKey:null, fromTime:'', toTime:'', from:0, to:0,
+ tab:'overview', sub:'never', search:'',
+ filters:{status:new Set(),executedBy:new Set(),environment:new Set(),testSet:new Set(),application:new Set(),type:new Set(),assignedTo:new Set()}
+};
+const FILTER_DEFS=[['status','Status','exec'],['executedBy','Executed by','exec'],['environment','Environment','exec'],['testSet','Test set','test'],['application','Application','test'],['type','Test type','test'],['assignedTo','Assigned to','test']];
+let DATA=null, SRC=null;
+
+/* ---------- Timezone math ---------- */
+const FMT={};
+function fmtFor(tz){return FMT[tz]||(FMT[tz]=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}))}
+function partsInTz(ms,tz){const p={};for(const x of fmtFor(tz).formatToParts(new Date(ms)))p[x.type]=x.value;if(p.hour==='24')p.hour='00';return p}
+function tzOffset(ms,tz){const p=partsInTz(ms,tz);return Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute,+p.second)-Math.floor(ms/1000)*1000}
+function wallToUtc(y,mo,d,h,mi,s,ms,tz){const g=Date.UTC(y,mo-1,d,h,mi,s,ms);let t=g-tzOffset(g,tz);t=g-tzOffset(t,tz);return t}
+const dayKey=(ms,tz=S.tz)=>{const p=partsInTz(ms,tz);return `${p.year}-${p.month}-${p.day}`};
+function addDays(key,n){const [y,m,d]=key.split('-').map(Number);return new Date(Date.UTC(y,m-1,d+n)).toISOString().slice(0,10)}
+function dayStart(key){const [y,m,d]=key.split('-').map(Number);return wallToUtc(y,m,d,0,0,0,0,S.tz)}
+const dayDiff=(a,b)=>Math.round((Date.parse(b+'T00:00:00Z')-Date.parse(a+'T00:00:00Z'))/864e5);
+function fmtDT(ms){if(ms==null)return '';const p=partsInTz(ms,S.tz);return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}`}
+function fmtTime(ms){if(ms==null)return '';const p=partsInTz(ms,S.tz);return `${p.hour}:${p.minute}:${p.second}`}
+const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const dayLabel=k=>WD[new Date(k+'T12:00:00Z').getUTCDay()]+' '+k;
+
+/* ---------- Value parsing ---------- */
+const MONTHS={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,nov:11,dec:12};
+const validYMD=(y,m,d)=>m>=1&&m<=12&&d>=1&&d<=31&&new Date(Date.UTC(y,m-1,d)).getUTCDate()===d;
+function parseTs(raw,tz=S.tz){
+ if(raw==null)return null; if(typeof raw==='number')return isFinite(raw)?raw:null;
+ const s=String(raw).trim(); if(!s)return null;
+ let y,mo,d,h=0,mi=0,se=0,ms=0,z=null,ap=null,m;
+ if((m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T ](\d{1,2}):(\d{2})(?::(\d{2})(?:[.,](\d{1,3})\d*)?)?)?\s*(Z|[+-]\d{2}:?\d{2})?$/i))){
+  y=+m[1];mo=+m[2];d=+m[3];h=+(m[4]||0);mi=+(m[5]||0);se=+(m[6]||0);ms=m[7]?+m[7].padEnd(3,'0'):0;z=m[8]||null;
+ }else if((m=s.match(/^(\d{1,2})([\/.\-])(\d{1,2})\2(\d{4})(?:[ T,]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp][Mm])?)?$/))){
+  const a=+m[1],b=+m[3];y=+m[4];let dmy=m[2]==='.'||S.dateOrder==='DMY';
+  if(a>12&&b<=12)dmy=true;else if(b>12&&a<=12)dmy=false;
+  if(dmy){d=a;mo=b}else{mo=a;d=b}
+  h=+(m[5]||0);mi=+(m[6]||0);se=+(m[7]||0);ap=m[8]||null;
+ }else if((m=s.match(/^([A-Za-z]{3,9})\.?\s+(\d{1,2}),?\s+(\d{4})(?:[ T,]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp][Mm])?)?$/))){
+  mo=MONTHS[m[1].slice(0,4).toLowerCase()]||MONTHS[m[1].slice(0,3).toLowerCase()];d=+m[2];y=+m[3];
+  h=+(m[4]||0);mi=+(m[5]||0);se=+(m[6]||0);ap=m[7]||null;if(!mo)return null;
+ }else return null;
+ if(ap){if(h<1||h>12)return null;h=h%12+(/p/i.test(ap)?12:0)}
+ if(!validYMD(y,mo,d)||h>23||mi>59||se>59)return null;
+ if(z){let off=0;if(z.toUpperCase()!=='Z'){const zz=z.replace(':','');off=(zz[0]==='-'?-1:1)*(+zz.slice(1,3)*60+ +zz.slice(3,5))}return Date.UTC(y,mo-1,d,h,mi,se,ms)-off*60000}
+ return wallToUtc(y,mo,d,h,mi,se,ms,tz);
+}
+function parseDay(raw){if(raw==null||raw==='')return null;const s=String(raw).trim();const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m&&validYMD(+m[1],+m[2],+m[3]))return m[0];const t=parseTs(s);return t==null?null:dayKey(t)}
+function parseDuration(raw){
+ if(raw==null||raw==='')return null;if(typeof raw==='number')return isFinite(raw)?raw:NaN;
+ const s=String(raw).trim();if(!s)return null;
+ if(/^\d+(\.\d+)?$/.test(s))return +s;
+ let m=s.match(/^(?:(\d+):)?(\d{1,2}):(\d{2})(?:\.\d+)?$/);if(m)return (+(m[1]||0))*3600+(+m[2])*60+(+m[3]);
+ m=s.match(/^(?:(\d+)\s*h\w*)?\s*(?:(\d+)\s*m\w*)?\s*(?:(\d+)\s*s\w*)?$/i);if(m&&(m[1]||m[2]||m[3]))return (+(m[1]||0))*3600+(+(m[2]||0))*60+(+(m[3]||0));
+ return NaN;
+}
+function fmtDur(s){if(s==null||isNaN(s))return '';s=Math.round(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?`${h}h ${m}m ${x}s`:m?`${m}m ${x}s`:`${x}s`}
+
+/* ---------- Ingest ---------- */
+const TEST_FIELDS=['name','description','testSet','application','type','assignedTo','plannedDate','lastExecution','almTestId'];
+function ingest(src){
+ SRC=src;
+ const meta=src.meta||{};
+ const tests=new Map();
+ const Q={noTestId:(src.quality&&src.quality.noTestId)||[],blankRows:(src.quality&&src.quality.blankRows)||0,duplicates:0,conflicts:[],notes:[].concat(meta.warnings||[])};
+ for(const t of src.tests||[]){
+  if(t==null||t.id==null||t.id==='')continue;const id=String(t.id);
+  const o=tests.get(id)||{id,execs:[]};
+  for(const k of TEST_FIELDS)if(t[k]!=null&&t[k]!=='')o[k]=t[k];
+  tests.set(id,o);
+ }
+ const seen=new Set(),byRun=new Map(),all=[];let order=0;
+ for(const e of src.executions||[]){
+  if(e==null||e.testId==null||e.testId==='')continue;
+  const tid=String(e.testId);
+  if(!tests.has(tid))tests.set(tid,{id:tid,execs:[]});
+  const defects=Array.isArray(e.defects)?e.defects.map(String):String(e.defects??'').split(/[,;|\s]+/).filter(Boolean);
+  const x={testId:tid,runId:e.runId!=null?String(e.runId):'',raw:e.ts??'',statusRaw:e.statusRaw??e.status??'',status:normStatus(e.status),
+   tester:e.tester?String(e.tester):'',environment:e.environment?String(e.environment):'',defects,order:order++};
+  x.duration=parseDuration(e.duration);
+  const sig=JSON.stringify([tid,x.runId,x.raw,x.statusRaw,x.tester,e.duration??'',x.environment,defects.join(',')]);
+  if(seen.has(sig)){Q.duplicates++;continue}seen.add(sig);
+  if(x.runId){if(byRun.has(x.runId)){byRun.get(x.runId).push(x);continue}byRun.set(x.runId,[x])}
+  all.push(x);
+ }
+ for(const t of tests.values())t.lastT=null;
+ DATA={meta,tests:[...tests.values()],testMap:tests,execs:all,Q,byRun,sample:!!meta.sample};
+ resolveTimes();
+ // Same run ID with different data: keep the latest timestamp (ties: later row)
+ for(const [rid,arr] of byRun){
+  if(arr.length<2)continue;
+  let best=arr[0];for(const x of arr.slice(1))if((x.t??-Infinity)>=(best.t??-Infinity))best=x;
+  if(best!==arr[0]){const i=all.indexOf(arr[0]);all[i]=best}
+  Q.conflicts.push(rid);
+ }
+ for(const x of all)DATA.testMap.get(x.testId).execs.push(x);
+ for(const t of DATA.tests)t.execs.sort((a,b)=>(a.t??Infinity)-(b.t??Infinity)||a.order-b.order);
+ assignAttempts();
+}
+function resolveTimes(){
+ for(const arr of DATA.byRun.values())for(const x of arr)x.t=parseTs(x.raw);
+ for(const x of DATA.execs)x.t=parseTs(x.raw);
+ for(const t of DATA.tests){t.lastT=t.lastExecution?parseTs(t.lastExecution):null;t.plannedDay=t.plannedDate?parseDay(t.plannedDate):null}
+}
+function assignAttempts(){
+ for(const t of DATA.tests){
+  const byDay={};
+  for(const e of t.execs){e.day=e.t==null?null:dayKey(e.t);if(e.status==='Not run'||e.day==null)continue;(byDay[e.day]=byDay[e.day]||[]).push(e)}
+  for(const arr of Object.values(byDay)){arr.forEach((e,i)=>{e.attemptN=i+1;e.attemptOf=arr.length;e.latestOfDay=i===arr.length-1})}
+ }
+}
+function retime(){resolveTimes();for(const t of DATA.tests)t.execs.sort((a,b)=>(a.t??Infinity)-(b.t??Infinity)||a.order-b.order);assignAttempts()}
+
+/* ---------- CSV ---------- */
+function parseCSV(text){
+ text=text.replace(/^\uFEFF/,'');
+ const first=text.split(/\r?\n/,1)[0]||'';
+ const cnt=c=>first.split(c).length-1;
+ const delim=[',',';','\t','|'].sort((a,b)=>cnt(b)-cnt(a))[0];
+ const rows=[];let row=[],f='',q=false;
+ for(let i=0;i<text.length;i++){
+  const c=text[i];
+  if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+  else if(c==='"'&&f==='')q=true;
+  else if(c===delim){row.push(f);f=''}
+  else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f=''}
+  else f+=c;
+ }
+ if(f!==''||row.length){row.push(f);rows.push(row)}
+ return rows;
+}
+const CSV_FIELDS=[
+ ['testId','Test ID',['testid','testcaseid','tcid','testkey','testinstanceid','id']],
+ ['name','Test name',['testname','name','title','summary','testcasename']],
+ ['description','Description',['description','objective','testdescription']],
+ ['testSet','Test set',['testset','testsetname','testsuite','suite','folder','module','cycle']],
+ ['application','Application',['application','app','component','product']],
+ ['type','Test type',['testtype','type','automation','automated']],
+ ['assignedTo','Assigned to',['assignedto','responsibletester','owner','assignee']],
+ ['plannedDate','Planned date',['planneddate','plannedexecutiondate','scheduleddate','duedate']],
+ ['lastExecution','Last execution (ALM)',['lastexecutiondate','lastexecution','lastrun','lastrundate','lastexecuted']],
+ ['runId','Execution ID',['runid','executionid','testrunid','run']],
+ ['ts','Execution date/time',['executiondatetime','executiondate','executedon','rundate','startdate','datetime','date']],
+ ['tsTime','Execution time',['executiontime','time','starttime']],
+ ['status','Status',['status','result','outcome','verdict','executionstatus','runstatus']],
+ ['tester','Executed by',['executedby','tester','runby','actualtester']],
+ ['duration','Duration',['durationseconds','duration','elapsed','runtime']],
+ ['environment','Environment',['environment','env','configuration']],
+ ['defects','Defects',['defects','defectid','defectids','bugs','linkedissues','linkeddefects']],
+];
+function csvToSource(text,fileName){
+ const rows=parseCSV(text);
+ if(!rows.length||rows.every(r=>r.every(c=>!c.trim())))throw new Error('The file is empty.');
+ const hdr=rows[0].map(h=>h.trim().toLowerCase().replace(/[^a-z0-9]/g,''));
+ const map={},used=new Set();
+ for(const [key,,aliases] of CSV_FIELDS){for(const a of aliases){const i=hdr.indexOf(a);if(i>=0&&!used.has(i)){map[key]=i;used.add(i);break}}}
+ if(map.testId==null)throw new Error('No Test ID column found. Rename the column to "Test ID" and try again. Headers seen: '+rows[0].join(', '));
+ const tests=[],execs=[],noTestId=[];let blank=0;
+ for(let r=1;r<rows.length;r++){
+  const row=rows[r];if(row.every(c=>!String(c).trim())){blank++;continue}
+  const g=k=>map[k]==null?'':String(row[map[k]]??'').trim();
+  const id=g('testId');
+  if(!id){noTestId.push(r+1);continue}
+  let type=g('type');if(/^(yes|y|true|1)$/i.test(type))type='Automated';else if(/^(no|n|false|0)$/i.test(type))type='Manual';
+  tests.push({id,name:g('name'),description:g('description'),testSet:g('testSet'),application:g('application'),type,assignedTo:g('assignedTo'),plannedDate:g('plannedDate'),lastExecution:g('lastExecution')});
+  let ts=g('ts');const tm=g('tsTime');if(tm&&ts&&!/\d:\d/.test(ts))ts=ts+' '+tm;
+  if(g('runId')||ts||g('status')||g('duration'))execs.push({testId:id,runId:g('runId'),ts,status:g('status'),statusRaw:g('status'),tester:g('tester'),duration:g('duration'),environment:g('environment'),defects:g('defects')});
+ }
+ const mapped=CSV_FIELDS.filter(f=>map[f[0]]!=null).map(f=>`${f[1]} ← "${rows[0][map[f[0]]]}"`);
+ return {src:{meta:{source:'File: '+fileName,generatedAt:new Date().toISOString()},tests,executions:execs,quality:{noTestId,blankRows:blank}},mapped};
+}
+
+/* ---------- Sample data ---------- */
+function sampleData(){
+ let seed=20261022;const rnd=()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+ const today=dayKey(Date.now());
+ const testers=['Priya Shah','Tom Becker','Lena Ortiz','Marcus Lee','Aiko Tanaka'];
+ const sets=[['Checkout','Retail Web'],['Payments','Retail Web'],['Inventory','Warehouse'],['Reporting','Back Office']];
+ const tests=[],executions=[];let run=7000;
+ const pick=()=>{const r=rnd();return r<.72?'Passed':r<.86?'Failed':r<.92?'Blocked':r<.95?'Not Completed':r<.97?'No Run':'Passed'};
+ for(let i=0;i<40;i++){
+  const id='TI-'+(1001+i);const [set,app]=sets[i%4];
+  tests.push({id,name:`${set}: scenario ${String(i+1).padStart(2,'0')}`,testSet:`Root\\Release 4.2\\${set}`,application:app,type:i%3===0?'Automated':'Manual',assignedTo:testers[i%5],plannedDate:i%7===0?'':addDays(today,(i%9)-5)});
+  if(i>=36)continue; // never executed
+  for(let d=21;d>=0;d--){
+   if(rnd()>(i%3===0?.6:.25))continue;
+   const day=addDays(today,-d);const h=8+Math.floor(rnd()*9),m=Math.floor(rnd()*60);
+   executions.push({testId:id,runId:String(run++),ts:`${day}T${pad(h)}:${pad(m)}:00`,status:pick(),tester:i%3===0?'svc_automation':testers[(i+d)%5],duration:60+Math.floor(rnd()*900),environment:d%2?'SIT':'UAT',defects:rnd()<.08?'DEF-'+(400+i):''});
+  }
+ }
+ // A failed run followed by a passing rerun today
+ executions.push({testId:'TI-1002',runId:String(run++),ts:`${today}T09:12:00`,status:'Failed',tester:'Tom Becker',duration:420,environment:'UAT',defects:'DEF-512'});
+ executions.push({testId:'TI-1002',runId:String(run++),ts:`${today}T11:40:00`,status:'Passed',tester:'Tom Becker',duration:380,environment:'UAT'});
+ return {meta:{sample:true,source:'Generated sample data',generatedAt:new Date().toISOString(),unit:'instance'},tests,executions};
+}
+
+/* ---------- Compute ---------- */
+function compute(){
+ const f=S.filters,q=S.search.trim().toLowerCase();
+ const has=(set,v)=>!set.size||set.has(v||NS);
+ const tStart=dayStart(S.asOf),tEnd=dayStart(addDays(S.asOf,1))-1;
+ const envOk=e=>has(f.environment,e.environment);
+ const show=e=>(!f.status.size||f.status.has(e.status))&&has(f.executedBy,e.tester);
+ const M={tests:[],periodTests:new Set(),latest:new Map(),attempts:{},visible:[],today:[],never:[],notInPeriod:[],notToday:[],overdue:[],noPlanned:0,lastRun:new Map()};
+ for(const s of STATUSES)M.attempts[s]=0;
+ for(const t of DATA.tests){
+  if(!has(f.testSet,t.testSet)||!has(f.application,t.application)||!has(f.type,t.type)||!has(f.assignedTo,t.assignedTo))continue;
+  if(q&&!(t.id.toLowerCase().includes(q)||(t.name||'').toLowerCase().includes(q)||t.execs.some(e=>e.runId.toLowerCase().includes(q)||e.defects.some(d=>d.toLowerCase().includes(q)))))continue;
+  M.tests.push(t);
+  const ex=t.execs.filter(e=>e.status!=='Not run'&&envOk(e));t._ex=ex;
+  const almLast=f.environment.size?null:t.lastT;const almRan=!f.environment.size&&!!t.lastExecution;
+  let lp=null,before=false,after=false,onToday=false,last=null;
+  for(const e of ex){
+   if(e.t==null)continue;
+   if(last==null||e.t>last)last=e.t;
+   if(e.t<S.from)before=true;else if(e.t>S.to)after=true;
+   else{M.periodTests.add(t.id);M.attempts[e.status]++;if(!lp||e.t>=lp.t)lp=e;if(show(e))M.visible.push(e)}
+   if(e.t>=tStart&&e.t<=tEnd){onToday=true;if(show(e))M.today.push(e)}
+  }
+  if(almLast!=null){if(last==null||almLast>last)last=almLast;if(almLast>=S.from&&almLast<=S.to)M.periodTests.add(t.id);if(almLast>=tStart&&almLast<=tEnd)onToday=true}
+  M.lastRun.set(t.id,last);
+  if(lp)M.latest.set(t.id,lp);
+  const never=!ex.length&&!almRan;
+  if(never)M.never.push(t);
+  if(!M.periodTests.has(t.id)){
+   let reason=never?'Never executed':(before||(almLast!=null&&almLast<S.from))?'Run before the period':(after||(almLast!=null&&almLast>S.to))?'Run only after the period':'Run (date unknown)';
+   M.notInPeriod.push({t,reason});
+  }
+  if(!onToday)M.notToday.push(t);
+  if(!t.plannedDay)M.noPlanned++;
+  else if(t.plannedDay<S.asOf){const ps=dayStart(t.plannedDay);if(!(last!=null&&last>=ps))M.overdue.push(t)}
+ }
+ M.visible.sort((a,b)=>b.t-a.t||b.order-a.order);M.today.sort((a,b)=>b.t-a.t||b.order-a.order);
+ M.byLatest={};for(const s of STATUSES)M.byLatest[s]=0;for(const e of M.latest.values())M.byLatest[e.status]++;
+ const P=M.attempts.Passed,F=M.attempts.Failed,B=S.passBlocked?M.attempts.Blocked:0;
+ M.passRate=P+F+B?P/(P+F+B)*100:null;
+ M.totalAttempts=RUN_STATUSES.reduce((a,s)=>a+M.attempts[s],0);
+ return M;
+}
+
+/* ---------- Table helper ---------- */
+const SORT={},TABLES={};
+function table(id,cols,rows,opt={}){
+ TABLES[id]={cols,rows,name:opt.name||id};
+ const st=SORT[id]||opt.sort||null;let r=rows;
+ if(st){const c=cols.find(c=>c.key===st.key);if(c){const g=c.v;r=rows.slice().sort((a,b)=>{const x=g(a),y=g(b),xe=x==null||x==='',ye=y==null||y==='';if(xe&&ye)return 0;if(xe)return 1;if(ye)return -1;return (typeof x==='number'&&typeof y==='number'?x-y:String(x).localeCompare(String(y),undefined,{numeric:true}))*st.dir})}}
+ TABLES[id].sorted=r;
+ const lim=opt.limit||1500,shown=r.slice(0,lim);
+ let h=`<div class="tbl-wrap"><table class="tbl"><thead><tr>`;
+ for(const c of cols){const a=st&&st.key===c.key?(st.dir>0?' ▲':' ▼'):'';h+=`<th${c.num?' class="num"':''}><button data-sort="${id}|${c.key}">${esc(c.label)}${a}</button></th>`}
+ h+='</tr></thead><tbody>';
+ if(!shown.length)h+=`<tr><td colspan="${cols.length}" class="empty">${esc(opt.empty||'No rows match the current period and filters.')}</td></tr>`;
+ for(const row of shown){h+='<tr>';for(const c of cols)h+=`<td${c.num?' class="num"':''}>${c.h?c.h(row):esc(txt(c,row))}</td>`;h+='</tr>'}
+ h+='</tbody></table></div>';
+ if(r.length>lim)h+=`<p class="note">Showing the first ${lim} of ${r.length} rows. Export CSV to get all of them.</p>`;
+ return h;
+}
+const txt=(c,row)=>{const v=c.t?c.t(row):c.v(row);return v==null?'':String(v)};
+const secHead=(title,id,tag='h2',extra='')=>`<div class="sec-h"><${tag}>${title}</${tag}>${extra}${id?`<button class="btn sm" data-export="${id}">Export CSV</button>`:''}</div>`;
+function exportTable(id){
+ const T=TABLES[id];if(!T)return;
+ const cell=v=>{let s=v==null?'':String(v);if(/^[=+\-@\t\r]/.test(s))s="'"+s;return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+ const filt=FILTER_DEFS.filter(([k])=>S.filters[k].size).map(([k,l])=>`${l}=${[...S.filters[k]].join('|')}`);
+ if(S.search)filt.push(`Search=${S.search}`);
+ const head=`# ${DATA.sample?'SAMPLE DATA':(DATA.meta.source||'ALM data')}; period ${periodText()}; timezone ${S.tz}; filters: ${filt.join('; ')||'none'}`;
+ const lines=[cell(head),T.cols.map(c=>cell(c.label)).join(',')];
+ for(const r of T.sorted||T.rows)lines.push(T.cols.map(c=>cell(c.x?c.x(r):txt(c,r))).join(','));
+ const blob=new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${T.name}_${S.fromKey}_to_${S.toKey}.csv`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+
+/* ---------- Cell renderers ---------- */
+const stBadge=s=>s?`<span class="st ${SCLASS[s]||'unrec'}">${esc(s)}</span>`:'';
+const tidBtn=id=>`<button class="tid" data-test="${esc(id)}">${esc(id)}</button>`;
+const T=id=>DATA.testMap.get(id);
+function execCols(withDate=true){
+ const c=[];
+ if(withDate)c.push({key:'t',label:'Date & time',v:e=>e.t,t:e=>fmtDT(e.t)});else c.push({key:'t',label:'Time',v:e=>e.t,t:e=>fmtTime(e.t)});
+ c.push(
+  {key:'test',label:'Test ID',v:e=>e.testId,h:e=>tidBtn(e.testId)},
+  {key:'name',label:'Test name',v:e=>T(e.testId).name||''},
+  {key:'set',label:'Test set',v:e=>T(e.testId).testSet||''},
+  {key:'tester',label:'Executed by',v:e=>e.tester||''},
+  {key:'status',label:'Status',v:e=>e.status,h:e=>stBadge(e.status)+(e.status==='Unrecognized'&&e.statusRaw?` <span class="note">${esc(e.statusRaw)}</span>`:''),x:e=>e.status},
+  {key:'attempt',label:'Attempt (that day)',v:e=>e.attemptN||null,t:e=>e.attemptN?`${e.attemptN} of ${e.attemptOf}${e.attemptN>1?', rerun':''}${e.attemptOf>1&&e.latestOfDay?' (latest)':''}`:''},
+  {key:'dur',label:'Duration',num:true,v:e=>isNaN(e.duration)?null:e.duration,t:e=>fmtDur(e.duration)},
+  {key:'env',label:'Environment',v:e=>e.environment||''},
+  {key:'run',label:'Run ID',v:e=>e.runId,h:e=>`<span class="mono">${esc(e.runId)}</span>`},
+  {key:'def',label:'Defects',v:e=>e.defects.join(', ')}
+ );return c;
+}
+
+/* ---------- Views ---------- */
+function periodText(){return `${S.fromKey}${S.fromTime?' '+S.fromTime:''} → ${S.toKey}${S.toTime?' '+S.toTime:''}`}
+function renderOverview(M){
+ const n=M.tests.length,ex=M.periodTests.size,cov=n?ex/n*100:null;
+ const card=(cls,k,v,s,go)=>`<button class="card ${cls}" data-goto="${go}"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></button>`;
+ const pct=x=>x==null?'—':x.toFixed(1)+'%';
+ let h=`<div class="cards">`+
+  card('','Tests in scope',n,'unique tests','history')+
+  card('','Executed in period',ex,`coverage ${pct(cov)}`,'executions')+
+  card('','Execution attempts',M.totalAttempts,'incl. reruns','executions')+
+  card('pass','Passed',M.byLatest.Passed,`latest status · ${M.attempts.Passed} attempts`,'executions')+
+  card('fail','Failed',M.byLatest.Failed,`latest status · ${M.attempts.Failed} attempts`,'executions')+
+  card('block','Blocked',M.byLatest.Blocked,`latest status · ${M.attempts.Blocked} attempts`,'executions')+
+  card('prog','In progress',M.byLatest['In progress'],`latest status · ${M.attempts['In progress']} attempts`,'executions')+
+  card('','Pass rate',pct(M.passRate),S.passBlocked?'passed ÷ (passed+failed+blocked)':'passed ÷ (passed+failed)','executions')+
+  card('','Never executed',M.never.length,'no run on record','notexec:never')+
+  card('','Not executed in period',M.notInPeriod.length,'of the tests in scope','notexec:period')+
+  card('','Overdue',M.overdue.length,`${M.noPlanned} without planned date`,'notexec:overdue')+
+ `</div>`;
+ h+=`<div class="panel chart">${secHead('Executions per day',null)}${dailyChart(M)}</div>`;
+ h+=`<div class="grid2"><div class="panel">${secHead('Who executed (period)','ov-testers')}${testerTable(M,'ov-testers',8)}</div>`;
+ h+=`<div class="panel">${secHead('Coverage by test set','ov-sets')}${setTable(M)}</div></div>`;
+ h+=`<div class="panel">${secHead('Data quality',null)}${dataQuality()}</div>`;
+ return h;
+}
+function dailyChart(M){
+ const days=dayDiff(S.fromKey,S.toKey)+1;const step=days>92?7:1;const buckets=[];
+ for(let i=0;i<days;i+=step)buckets.push({key:addDays(S.fromKey,i),c:{}});
+ for(const e of M.visible){const i=Math.floor(dayDiff(S.fromKey,e.day)/step);const b=buckets[i];if(b)b.c[e.status]=(b.c[e.status]||0)+1}
+ const max=Math.max(1,...buckets.map(b=>RUN_STATUSES.reduce((a,s)=>a+(b.c[s]||0),0)));
+ const W=Math.max(600,buckets.length*18),H=220,L=34,B=34,bw=(W-L-8)/buckets.length;
+ let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Executions per ${step===7?'week':'day'}">`;
+ const tick=Math.ceil(max/4);
+ for(let v=0;v<=max;v+=tick){const y=H-B-(v/max)*(H-B-10);s+=`<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L-5}" y="${y+4}" font-size="10" text-anchor="end" fill="var(--muted)">${v}</text>`}
+ const every=Math.ceil(buckets.length/14);
+ buckets.forEach((b,i)=>{
+  let y=H-B;const x=L+i*bw+bw*.15,w=Math.max(2,bw*.7);let tot=0;
+  s+=`<g class="bar" data-day="${b.key}" data-step="${step}"><rect x="${L+i*bw}" y="10" width="${bw}" height="${H-B-10}" fill="transparent"/>`;
+  for(const st of RUN_STATUSES){const n=b.c[st]||0;if(!n)continue;tot+=n;const hh=n/max*(H-B-10);y-=hh;s+=`<rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="var(--${SCLASS[st]})"><title>${b.key}: ${n} ${st}</title></rect>`}
+  s+='</g>';
+  if(i%every===0)s+=`<text x="${x+w/2}" y="${H-B+14}" font-size="10" text-anchor="middle" fill="var(--muted)">${b.key.slice(5)}</text>`;
+ });
+ s+='</svg>';
+ return s+`<div class="legend">${RUN_STATUSES.map(st=>`<span><span class="dot ${SCLASS[st]}"></span>${st}</span>`).join('')}<span>${step===7?'Grouped by week (period over 92 days). ':''}Click a bar to open that ${step===7?'week':'day'}.</span></div>`;
+}
+function testerRows(execs){
+ const m=new Map();
+ for(const e of execs){const k=e.tester||NS;let r=m.get(k);if(!r){r={tester:k,n:0,tests:new Set(),c:{},last:null};m.set(k,r)}r.n++;r.tests.add(e.testId);r.c[e.status]=(r.c[e.status]||0)+1;if(r.last==null||e.t>r.last)r.last=e.t}
+ return [...m.values()].map(r=>({...r,u:r.tests.size,pr:(r.c.Passed||0)+(r.c.Failed||0)?(r.c.Passed||0)/((r.c.Passed||0)+(r.c.Failed||0))*100:null}));
+}
+const minibar=r=>`<div class="minibar">${RUN_STATUSES.map(s=>r.c[s]?`<span class="${SCLASS[s]}" style="width:${r.c[s]/r.n*100}%" title="${r.c[s]} ${s}"></span>`:'').join('')}</div>`;
+function testerTable(M,id,limit){
+ const rows=testerRows(M.visible);
+ const cols=[{key:'tester',label:'Executed by',v:r=>r.tester},{key:'n',label:'Attempts',num:true,v:r=>r.n},{key:'u',label:'Unique tests',num:true,v:r=>r.u},
+  {key:'p',label:'Passed',num:true,v:r=>r.c.Passed||0},{key:'f',label:'Failed',num:true,v:r=>r.c.Failed||0},{key:'b',label:'Blocked',num:true,v:r=>r.c.Blocked||0},
+  {key:'o',label:'Other',num:true,v:r=>(r.c['In progress']||0)+(r.c.Unrecognized||0)},{key:'pr',label:'Pass rate',num:true,v:r=>r.pr,t:r=>r.pr==null?'—':r.pr.toFixed(1)+'%'},
+  {key:'mix',label:'Mix',v:r=>r.n,h:minibar,x:()=>''},{key:'last',label:'Last activity',v:r=>r.last,t:r=>fmtDT(r.last)}];
+ return table(id,cols,rows,{sort:{key:'n',dir:-1},limit,name:'executions_by_tester'});
+}
+function setTable(M){
+ const m=new Map();
+ for(const t of M.tests){const k=t.testSet||NS;let r=m.get(k);if(!r){r={set:k,n:0,ex:0,p:0,f:0};m.set(k,r)}r.n++;if(M.periodTests.has(t.id))r.ex++;const l=M.latest.get(t.id);if(l){if(l.status==='Passed')r.p++;if(l.status==='Failed')r.f++}}
+ const cols=[{key:'set',label:'Test set',v:r=>r.set},{key:'n',label:'In scope',num:true,v:r=>r.n},{key:'ex',label:'Executed',num:true,v:r=>r.ex},
+  {key:'cov',label:'Coverage',num:true,v:r=>r.ex/r.n*100,t:r=>(r.ex/r.n*100).toFixed(0)+'%'},{key:'p',label:'Latest passed',num:true,v:r=>r.p},{key:'f',label:'Latest failed',num:true,v:r=>r.f}];
+ return table('ov-sets',cols,[...m.values()],{sort:{key:'set',dir:1},name:'coverage_by_test_set'});
+}
+function dataQuality(){
+ const Q=DATA.Q,items=[];
+ const undated=DATA.tests.reduce((a,t)=>a+t.execs.filter(e=>e.t==null).length,0);
+ const unrec=DATA.tests.reduce((a,t)=>a+t.execs.filter(e=>e.status==='Unrecognized').length,0);
+ const badDur=DATA.tests.reduce((a,t)=>a+t.execs.filter(e=>Number.isNaN(e.duration)).length,0);
+ const unrecVals=[...new Set(DATA.tests.flatMap(t=>t.execs.filter(e=>e.status==='Unrecognized').map(e=>e.statusRaw||'(blank)')))].slice(0,8);
+ if(undated)items.push(`${undated} execution(s) have a missing or unreadable date. They stay in test history but are left out of date-based figures.`);
+ if(unrec)items.push(`${unrec} execution(s) have an unrecognized status (${unrecVals.map(esc).join(', ')}). They count as executed but not in the pass rate.`);
+ if(badDur)items.push(`${badDur} execution(s) have an unreadable duration.`);
+ if(Q.duplicates)items.push(`${Q.duplicates} exact duplicate execution row(s) were counted once.`);
+ if(Q.conflicts.length)items.push(`${Q.conflicts.length} run ID(s) appeared more than once with different data; the latest was kept: ${Q.conflicts.slice(0,10).map(esc).join(', ')}${Q.conflicts.length>10?'…':''}`);
+ if(Q.noTestId.length)items.push(`${Q.noTestId.length} row(s) without a Test ID were excluded (rows ${Q.noTestId.slice(0,15).join(', ')}${Q.noTestId.length>15?'…':''}).`);
+ if(Q.blankRows)items.push(`${Q.blankRows} blank row(s) skipped.`);
+ for(const n of Q.notes)items.push(esc(n));
+ return items.length?`<ul class="dq">${items.map(i=>`<li>${i}</li>`).join('')}</ul>`:`<p class="ok">No data issues found.</p>`;
+}
+function renderExecutions(M){
+ TABLES['execs-all']={cols:execCols(),rows:M.visible,name:'executions'};
+ const groups=new Map();for(const e of M.visible){if(!groups.has(e.day))groups.set(e.day,[]);groups.get(e.day).push(e)}
+ let h=`<div class="panel">${secHead(`Executions in period <span class="muted" style="font-weight:400">· ${M.visible.length} attempts, ${new Set(M.visible.map(e=>e.testId)).size} unique tests</span>`,'execs-all')}<p class="note">One row per attempt, so reruns appear as separate rows. Grouped by day in ${esc(S.tz)}.</p>`;
+ if(!groups.size)h+=`<p class="muted">No executions in this period with the current filters.</p>`;
+ let i=0;
+ for(const [day,arr] of groups){
+  const c={};for(const e of arr)c[e.status]=(c[e.status]||0)+1;
+  h+=`<details class="day"${i++<3?' open':''}><summary><b>${dayLabel(day)}</b><span>${arr.length} attempts · ${new Set(arr.map(e=>e.testId)).size} tests</span>${RUN_STATUSES.filter(s=>c[s]).map(s=>`<span><span class="dot ${SCLASS[s]}"></span>${c[s]} ${s}</span>`).join(' ')}<span style="flex:1"></span><button class="btn sm" data-export="day-${day}">Export</button></summary>${table('day-'+day,execCols(false),arr,{name:'executions_'+day})}</details>`;
+ }
+ return h+'</div>';
+}
+function renderToday(M){
+ const latest=new Map();for(const e of M.today){const l=latest.get(e.testId);if(!l||e.t>l.t)latest.set(e.testId,e)}
+ const c={};for(const e of latest.values())c[e.status]=(c[e.status]||0)+1;
+ let h=`<div class="panel">${secHead(`Executions on ${dayLabel(S.asOf)}`,'today')}`;
+ h+=`<p>${M.today.length} attempts on ${latest.size} unique tests. Latest status per test: ${RUN_STATUSES.filter(s=>c[s]).map(s=>`${stBadge(s)} ${c[s]}`).join(' &nbsp; ')||'—'}</p>`;
+ h+=M.today.length?table('today',execCols(false),M.today,{name:'executions_today'}):`<p class="muted">No tests were executed on ${S.asOf} with the current filters.</p>`;
+ return h+`<p class="note">The reporting date is set under Data &amp; settings (Report as of). Today runs 00:00–24:00 in ${esc(S.tz)}.</p></div>`;
+}
+function renderTesters(M){
+ let h=`<div class="panel">${secHead('Executions by tester in period','testers')}${testerTable(M,'testers')}</div>`;
+ // tester × day matrix
+ const days=[],n=Math.min(dayDiff(S.fromKey,S.toKey)+1,31);for(let i=n-1;i>=0;i--)days.push(addDays(S.toKey,-i));
+ const m=new Map();for(const e of M.visible){const k=e.tester||NS;if(!m.has(k))m.set(k,{tester:k,d:{}});const r=m.get(k);r.d[e.day]=(r.d[e.day]||0)+1}
+ const cols=[{key:'tester',label:'Executed by',v:r=>r.tester}].concat(days.map(d=>({key:d,label:d.slice(5),num:true,v:r=>r.d[d]||0,t:r=>r.d[d]||''})));
+ h+=`<div class="panel">${secHead('Attempts per tester per day'+(n<dayDiff(S.fromKey,S.toKey)+1?' (last 31 days of the period)':''),'tester-days')}${table('tester-days',cols,[...m.values()],{sort:{key:'tester',dir:1},name:'tester_by_day'})}</div>`;
+ return h;
+}
+function testRowCols(M,extra=[]){
+ return [{key:'id',label:'Test ID',v:t=>t.id,h:t=>tidBtn(t.id)},{key:'name',label:'Test name',v:t=>t.name||''},{key:'set',label:'Test set',v:t=>t.testSet||''},
+  {key:'app',label:'Application',v:t=>t.application||''},{key:'owner',label:'Assigned to',v:t=>t.assignedTo||''},{key:'plan',label:'Planned date',v:t=>t.plannedDay||''},
+  ...extra,{key:'last',label:'Last executed',v:t=>M.lastRun.get(t.id),t:t=>fmtDT(M.lastRun.get(t.id))},
+  {key:'since',label:'Days since last run',num:true,v:t=>{const l=M.lastRun.get(t.id);return l==null?null:dayDiff(dayKey(l),S.asOf)}}];
+}
+function renderNotExec(M){
+ const subs=[['never','A · Never executed',M.never.length],['period','B · Not executed in period',M.notInPeriod.length],['today','C · Not executed today',M.notToday.length],['overdue','D · Overdue',M.overdue.length]];
+ let h=`<div class="subnav">${subs.map(([k,l,n])=>`<button class="btn${S.sub===k?' on':''}" data-sub="${k}">${l} (${n})</button>`).join('')}</div><div class="panel">`;
+ if(S.sub==='never'){h+=secHead('Never executed','ne-never')+`<p class="note">Tests in scope with no execution on record${S.filters.environment.size?' in the selected environment':' and no ALM last-execution date'}.</p>`+table('ne-never',testRowCols(M),M.never,{sort:{key:'id',dir:1},name:'never_executed'})}
+ else if(S.sub==='period'){h+=secHead('Not executed in period','ne-period')+`<p class="note">${periodText()}. Each test is labelled with the reason.</p>`+table('ne-period',testRowCols(M,[{key:'reason',label:'Reason',v:r=>r.reason}]).map(c=>c.key==='reason'?c:{...c,v:r=>c.v(r.t),t:c.t?(r=>c.t(r.t)):undefined,h:c.h?(r=>c.h(r.t)):undefined}),M.notInPeriod,{sort:{key:'reason',dir:1},name:'not_executed_in_period'})}
+ else if(S.sub==='today'){h+=secHead(`Not executed on ${S.asOf}`,'ne-today')+table('ne-today',testRowCols(M),M.notToday,{sort:{key:'id',dir:1},name:'not_executed_today'})}
+ else{h+=secHead(`Overdue as of ${S.asOf}`,'ne-overdue')+`<p class="note">Planned date before ${S.asOf} and no execution on or after the planned date. ${M.noPlanned} test(s) in scope have no planned date and are not assessed.</p>`+table('ne-overdue',testRowCols(M,[{key:'late',label:'Days overdue',num:true,v:t=>dayDiff(t.plannedDay,S.asOf)}]),M.overdue,{sort:{key:'late',dir:-1},name:'overdue'})}
+ return h+'</div>';
+}
+function renderHistory(M){
+ const last=t=>{for(let i=t._ex.length-1;i>=0;i--)if(t._ex[i].t!=null)return t._ex[i];return t._ex[t._ex.length-1]||null};
+ const cols=[{key:'id',label:'Test ID',v:t=>t.id,h:t=>tidBtn(t.id)},{key:'name',label:'Test name',v:t=>t.name||''},{key:'set',label:'Test set',v:t=>t.testSet||''},
+  {key:'owner',label:'Assigned to',v:t=>t.assignedTo||''},{key:'n',label:'Runs (all time)',num:true,v:t=>t._ex.length},
+  {key:'ls',label:'Last status',v:t=>last(t)?.status||'',h:t=>stBadge(last(t)?.status)},{key:'by',label:'Last executed by',v:t=>last(t)?.tester||''},
+  {key:'last',label:'Last executed',v:t=>M.lastRun.get(t.id),t:t=>fmtDT(M.lastRun.get(t.id))},
+  {key:'recent',label:'Last 10 results',v:t=>t._ex.length,h:t=>t._ex.slice(-10).map(e=>`<span class="dot ${SCLASS[e.status]}" title="${esc(fmtDT(e.t)+' '+e.status)}"></span>`).join(''),x:t=>t._ex.slice(-10).map(e=>e.status[0]).join('')}];
+ return `<div class="panel">${secHead('Test execution history','history')}<p class="note">Every test in scope, all loaded history (not limited to the period). Click a test ID for its full run list.</p>${table('history',cols,M.tests,{sort:{key:'id',dir:1},name:'test_history'})}</div>`;
+}
+function openHistory(id){
+ const t=T(id);if(!t)return;
+ const kv=[['Name',t.name],['Description',t.description],['Test set',t.testSet],['Application',t.application],['Type',t.type],['Assigned to',t.assignedTo],['Planned date',t.plannedDay||t.plannedDate],['ALM last execution',t.lastT!=null?fmtDT(t.lastT):t.lastExecution],['ALM test ID',t.almTestId]].filter(([,v])=>v);
+ const rows=t.execs.slice().reverse();
+ const cols=execCols().filter(c=>!['test','name','set'].includes(c.key));cols[0]={...cols[0],t:e=>e.t==null?(e.raw?`Unreadable: ${e.raw}`:'No date'):fmtDT(e.t)};
+ $('#drawer').innerHTML=`<div class="sec-h"><h2><span class="mono">${esc(t.id)}</span></h2><button class="btn sm" data-export="drawer">Export CSV</button><button class="btn sm" id="closeDrawer">Close</button></div><dl class="kv">${kv.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl><h3>All executions (${t.execs.length}), newest first</h3><p class="note">Includes runs outside the period and "Not run" records.</p>${table('drawer',cols,rows,{name:'history_'+t.id,empty:'No executions on record.'})}`;
+ $('#overlay').classList.add('open');
+}
+
+/* ---------- Shell ---------- */
+function render(){
+ const M=compute();
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===S.tab));
+ const V={overview:renderOverview,executions:renderExecutions,today:renderToday,testers:renderTesters,notexec:renderNotExec,history:renderHistory}[S.tab];
+ $('#view').innerHTML=`<div class="print-only"><h2>${esc(DATA.meta.project?`${DATA.meta.domain}/${DATA.meta.project}`:'ALM')} · ${periodText()} (${esc(S.tz)})</h2></div>`+V(M);
+ renderChips(M);
+ $('#tzNote').textContent=S.tz;
+}
+function renderChips(M){
+ let h='';
+ for(const [k,l] of FILTER_DEFS)for(const v of S.filters[k])h+=`<span class="chip">${esc(l)}: ${esc(v)}<button data-chip="${k}" data-val="${esc(v)}" aria-label="Remove">×</button></span>`;
+ if(S.search)h+=`<span class="chip">Search: ${esc(S.search)}<button data-chip="search" aria-label="Remove">×</button></span>`;
+ if(h)h+=`<button class="btn sm" id="clearAll">Clear all filters</button>`;
+ h+=`<span class="count-note">Period ${esc(periodText())} · ${M.tests.length} tests in scope · ${M.visible.length} execution records shown</span>`;
+ $('#chips').innerHTML=h;
+}
+function buildFilters(){
+ const opts={status:RUN_STATUSES,executedBy:new Set(),environment:new Set(),testSet:new Set(),application:new Set(),type:new Set(),assignedTo:new Set()};
+ for(const t of DATA.tests){for(const k of ['testSet','application','type','assignedTo'])opts[k].add(t[k]||NS);for(const e of t.execs){opts.executedBy.add(e.tester||NS);opts.environment.add(e.environment||NS)}}
+ let h='';
+ for(const [k,l] of FILTER_DEFS){
+  const vals=[...opts[k]].sort((a,b)=>k==='status'?0:a.localeCompare(b));
+  if(k!=='status'&&vals.length<=1&&vals[0]===NS)continue;
+  h+=`<details class="ms" data-ms="${k}"><summary>${l} <span class="muted">${S.filters[k].size?'('+S.filters[k].size+')':'▾'}</span></summary><div class="ms-list">${vals.map(v=>`<label><input type="checkbox" value="${esc(v)}"${S.filters[k].has(v)?' checked':''}> ${esc(v)}</label>`).join('')}</div></details>`;
+ }
+ $('#msFilters').innerHTML=h;
+}
+function syncFilterBoxes(){
+ document.querySelectorAll('details.ms').forEach(d=>{const k=d.dataset.ms;d.querySelector('summary span').textContent=S.filters[k].size?'('+S.filters[k].size+')':'▾';d.querySelectorAll('input').forEach(i=>i.checked=S.filters[k].has(i.value))});
+}
+function setPeriod(fk,tk,ft='',tt=''){
+ if(tk<fk)[fk,tk]=[tk,fk];
+ S.fromKey=fk;S.toKey=tk;S.fromTime=ft;S.toTime=tt;
+ const toMin=s=>{const [h,m]=s.split(':').map(Number);return (h*60+m)*60000};
+ S.from=dayStart(fk)+(ft?toMin(ft):0);
+ S.to=tt?dayStart(tk)+toMin(tt)+59999:dayStart(addDays(tk,1))-1;
+ $('#fromDate').value=fk;$('#toDate').value=tk;$('#fromTime').value=ft;$('#toTime').value=tt;
+}
+function quick(q){
+ const a=S.asOf;
+ if(q==='today')setPeriod(a,a);else if(q==='yesterday'){const y=addDays(a,-1);setPeriod(y,y)}
+ else if(q==='mtd')setPeriod(a.slice(0,8)+'01',a);
+ else if(q==='all'){const ks=DATA.tests.flatMap(t=>t.execs.filter(e=>e.day).map(e=>e.day)).sort();setPeriod(ks[0]||a,ks.length&&ks[ks.length-1]>a?ks[ks.length-1]:a)}
+ else setPeriod(addDays(a,-(+q-1)),a);
+}
+function loadSource(src){
+ ingest(src);
+ const meta=DATA.meta;
+ $('#banner').hidden=!DATA.sample;
+ $('#bannerText').innerHTML='<b>Sample data.</b> These are generated demo results, not your ALM data. Run <span class="mono">generate_report.py</span> to build the report from ALM, or load an export under Data &amp; settings.';
+ const bits=[];if(meta.domain||meta.project)bits.push(`${meta.domain||''}/${meta.project||''}`);else if(meta.source)bits.push(meta.source);
+ if(meta.generatedAt){const g=Date.parse(meta.generatedAt);bits.push('data as of '+(isNaN(g)?meta.generatedAt:fmtDT(g)+' '+S.tz))}
+ if(meta.unit)bits.push(meta.unit==='test'?'1 row = Test Plan test':'1 row = test instance');
+ if(meta.historyDays)bits.push(`runs from last ${meta.historyDays} days`);
+ $('#metaLine').textContent=bits.join(' · ');
+ for(const k in S.filters)S.filters[k].clear();
+ S.asOf=dayKey(Date.now());$('#asOf').value=S.asOf;
+ buildFilters();quick('7');render();
+}
+function rerenderAfterTz(){retime();S.asOf=$('#asOf').value||dayKey(Date.now());setPeriod(S.fromKey,S.toKey,S.fromTime,S.toTime);render()}
+
+/* ---------- Events ---------- */
+document.addEventListener('click',ev=>{
+ const el=ev.target.closest('[data-sort],[data-export],[data-test],[data-tab],[data-sub],[data-goto],[data-day],[data-chip],[data-quick],#clearAll,#closeDrawer');
+ if(!el){if(ev.target.id==='overlay')$('#overlay').classList.remove('open');if(!ev.target.closest('details.ms'))document.querySelectorAll('details.ms[open]').forEach(d=>d.open=false);return}
+ const d=el.dataset;
+ if(d.export){ev.preventDefault();ev.stopPropagation();exportTable(d.export);return}
+ if(d.sort){const [id,key]=d.sort.split('|');const cur=SORT[id]||null;SORT[id]={key,dir:cur&&cur.key===key?-cur.dir:1};if(id==='drawer'){const tid=$('#drawer .mono').textContent;openHistory(tid)}else render();return}
+ if(d.test){openHistory(d.test);return}
+ if(d.tab){S.tab=d.tab;render();return}
+ if(d.sub){S.sub=d.sub;render();return}
+ if(d.goto){const [t,s]=d.goto.split(':');S.tab=t;if(s)S.sub=s;render();return}
+ if(d.day){const step=+d.step||1;setPeriod(d.day,step===7?(addDays(d.day,6)>S.toKey?S.toKey:addDays(d.day,6)):d.day);S.tab='executions';render();return}
+ if(d.chip){if(d.chip==='search'){S.search='';$('#q').value=''}else S.filters[d.chip].delete(d.val);syncFilterBoxes();render();return}
+ if(d.quick){quick(d.quick);render();return}
+ if(el.id==='clearAll'){for(const k in S.filters)S.filters[k].clear();S.search='';$('#q').value='';syncFilterBoxes();render();return}
+ if(el.id==='closeDrawer'){$('#overlay').classList.remove('open')}
+});
+document.addEventListener('change',ev=>{const d=ev.target.closest('details.ms');if(!d)return;const k=d.dataset.ms,v=ev.target.value;ev.target.checked?S.filters[k].add(v):S.filters[k].delete(v);syncFilterBoxes();render()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#overlay').classList.remove('open')});
+let qT;$('#q').addEventListener('input',e=>{clearTimeout(qT);qT=setTimeout(()=>{S.search=e.target.value;render()},200)});
+$('#btnApply').addEventListener('click',()=>{const f=$('#fromDate').value,t=$('#toDate').value;if(!f||!t){alert('Choose both a start and an end date.');return}setPeriod(f,t,$('#fromTime').value,$('#toTime').value);render()});
+$('#btnSettings').addEventListener('click',()=>$('#settings').classList.toggle('open'));
+$('#btnCloseSettings').addEventListener('click',()=>$('#settings').classList.remove('open'));
+$('#btnRules').addEventListener('click',()=>{
+ $('#drawer').innerHTML=`<div class="sec-h"><h2>Counting rules</h2><button class="btn sm" id="closeDrawer">Close</button></div><dl class="rules">
+ <dt>Execution (attempt)</dt><dd>One ALM run. Each rerun is its own attempt. Runs with status No Run / N/A are "Not run": kept in history, never counted as executed.</dd>
+ <dt>Executed in period</dt><dd>Unique tests with at least one run whose date and time fall inside the period. A test run five times counts once.</dd>
+ <dt>Passed / Failed / Blocked / In progress cards</dt><dd>Unique tests grouped by the status of their latest run in the period. The small line gives attempt counts.</dd>
+ <dt>Pass rate</dt><dd>Passed attempts ÷ (Passed + Failed${S.passBlocked?' + Blocked':''}) attempts in the period.</dd>
+ <dt>Never executed</dt><dd>No run on record and no ALM last-execution date.</dd>
+ <dt>Not executed in period</dt><dd>No run in the period, labelled Never executed, Run before the period, Run only after the period, or Run (date unknown).</dd>
+ <dt>Not executed today</dt><dd>No run between 00:00 and 24:00 on the reporting date in ${esc(S.tz)}.</dd>
+ <dt>Overdue</dt><dd>Planned date before the reporting date and no run on or after the planned date. Tests without a planned date are not assessed.</dd>
+ <dt>Filters</dt><dd>Status and Executed by narrow execution lists, charts and tester tables only; coverage and not-executed lists ignore them. Environment changes what counts as executed. Test set, Application, Type, Assigned to and Search change which tests are in scope.</dd>
+ <dt>Period</dt><dd>Start inclusive. End date runs to 23:59:59.999, or to the end of the chosen minute when an end time is set. Days are bucketed in the report timezone.</dd></dl>`;
+ $('#overlay').classList.add('open');
+});
+$('#btnExport').addEventListener('click',()=>{const id={overview:'execs-all',executions:'execs-all',today:'today',testers:'testers',history:'history',notexec:'ne-'+S.sub}[S.tab];if(S.tab==='overview')TABLES['execs-all']={cols:execCols(),rows:compute().visible,name:'executions'};exportTable(id)});
+$('#btnTheme').addEventListener('click',()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark';store.set('theme',r.dataset.theme)});
+{const th=store.get('theme');if(th)document.documentElement.dataset.theme=th}
+// settings
+(function(){
+ const sel=$('#selTz');let zones=[];try{zones=Intl.supportedValuesOf('timeZone')}catch(e){}
+ if(!zones.includes('UTC'))zones.unshift('UTC');if(!zones.includes(S.tz))zones.unshift(S.tz);
+ sel.innerHTML=zones.map(z=>`<option${z===S.tz?' selected':''}>${esc(z)}</option>`).join('');
+ sel.addEventListener('change',()=>{S.tz=sel.value;store.set('tz',S.tz);rerenderAfterTz()});
+ $('#dateOrder').value=S.dateOrder;$('#dateOrder').addEventListener('change',e=>{S.dateOrder=e.target.value;store.set('dateOrder',S.dateOrder);rerenderAfterTz()});
+ $('#passBlocked').checked=S.passBlocked;$('#passBlocked').addEventListener('change',e=>{S.passBlocked=e.target.checked;store.set('passBlocked',S.passBlocked);render()});
+ $('#asOf').addEventListener('change',e=>{if(!e.target.value)return;S.asOf=e.target.value;render()});
+ $('#btnReset').addEventListener('click',()=>{loadSource(EMBED||sampleData());$('#loadMsg').textContent=''});
+ const drop=$('#drop');
+ const handle=file=>{if(!file)return;const r=new FileReader();r.onload=()=>{try{
+   const text=String(r.result);let src,msg;
+   if(/\.json$/i.test(file.name)){src=JSON.parse(text);if(Array.isArray(src))throw new Error('Expected a report data object with "tests" and "executions".');msg='Loaded report data.'}
+   else{const o=csvToSource(text,file.name);src=o.src;msg='Columns detected: '+o.mapped.join(' · ')}
+   loadSource(src);$('#loadMsg').innerHTML=`<span class="ok">${esc(file.name)}: ${src.executions.length} execution rows, ${DATA.tests.length} tests.</span> ${esc(msg)}`;
+  }catch(err){$('#loadMsg').innerHTML=`<span class="err">Could not read ${esc(file.name)}: ${esc(err.message)}</span>`}};r.readAsText(file)};
+ $('#file').addEventListener('change',e=>{handle(e.target.files[0]);e.target.value=''});
+ drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over')});
+ drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
+ drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');handle(e.dataTransfer.files[0])});
+})();
+
+window.__almReport={compute,getState:()=>S,getData:()=>DATA,setPeriod,quick,render,parseTs};
+loadSource(EMBED||sampleData());
+})();
+</script>
+</body>
+</html>
